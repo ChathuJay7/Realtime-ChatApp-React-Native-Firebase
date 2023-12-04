@@ -14,12 +14,17 @@ import { Logo } from "../assets";
 import { Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator } from "react-native";
 import { MessageCard } from "../components";
+import { useNavigation } from "@react-navigation/native";
 
 const HomeScreen = () => {
-  const user = useSelector((state) => state.user.user);
-  console.log("Logged user : ", user);
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const user = useSelector((state) => state.user.user);
+  const navigation = useNavigation();
+  console.log("Logged user : ", user);
+
+  
 
   return (
     <View style={styles.AndroidSafeArea} className="flex-1">
@@ -43,7 +48,7 @@ const HomeScreen = () => {
               <Text className="text-primaryText text-base font-extrabold pb-3">
                 Messages
               </Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate("AddToChatScreen")}>
                 <Ionicons name="chatbox" size={28} color="#555" />
               </TouchableOpacity>
             </View>
