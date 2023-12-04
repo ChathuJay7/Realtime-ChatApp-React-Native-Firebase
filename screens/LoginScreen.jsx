@@ -6,7 +6,8 @@ import { useNavigation } from "@react-navigation/native";
 
 const LoginScreen = () => {
 
-  const [email, setEmail] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const screenWidth = Math.round(Dimensions.get("window").width);
   const navigation = useNavigation();
@@ -27,7 +28,7 @@ const LoginScreen = () => {
 
         <View className="w-full flex items-center justify-center">
           <UserTextInput placeholder="Email" isPass={false} setStateValue={setEmail} />
-          <UserTextInput placeholder="Password" isPass={true} setStateValue={setEmail} />
+          <UserTextInput placeholder="Password" isPass={true} setStateValue={setPassword} />
 
           {/* Login Button */}
           <TouchableOpacity className="w-full px-4 py-2 rounded-xl bg-primary my-3 flex items-center justify-center">
