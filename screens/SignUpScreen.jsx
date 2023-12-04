@@ -15,6 +15,9 @@ import { avatars } from "../utils/supports";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "react-native";
 import { BlurView } from "expo-blur";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { firebaseAuth, firestoreDB } from "../config/firebase.config";
+import { doc, setDoc } from "firebase/firestore";
 
 const SignUpScreen = () => {
   const [name, setName] = useState("");
@@ -22,6 +25,7 @@ const SignUpScreen = () => {
   const [password, setPassword] = useState("");
   const [avatar, setAvatar] = useState(avatars[0]?.image.asset.url);
   const [isAvatarMenu, setIsAvatarMenu] = useState(false);
+  const [getEmailValidatedStatus, setGetEmailValidatedStatus] = useState(false);
 
   const screenWidth = Math.round(Dimensions.get("window").width);
   const screenHeight = Math.round(Dimensions.get("window").height);
@@ -31,6 +35,26 @@ const SignUpScreen = () => {
     setAvatar(item?.image.asset.url);
     setIsAvatarMenu(false);
   };
+
+  const handleSignUp = async() => {
+    if(getEmailValidatedStatus && email !== ""){
+      await createUserWithEmailAndPassword(firebaseAuth, email, password)
+      .then((userCred) => {
+        console.log(userCred.user);
+        const data = {
+          _id: userCred?.user.uid,
+          fullName: name,
+          profilePic: avatar,
+          providerData: userCred?.user.providerData[0]
+        }
+
+        setDoc(doc(firestoreDB, 'users', userCred?.user.uid), data)
+        .then(() => {
+          navigation.navigate("LoginScreen")
+        })
+      })
+    }
+  }
 
   return (
     <View
@@ -117,6 +141,7 @@ const SignUpScreen = () => {
             placeholder="Email"
             isPass={false}
             setStateValue={setEmail}
+            setGetEmailValidatedStatus={setGetEmailValidatedStatus}
           />
           <UserTextInput
             placeholder="Password"
@@ -125,7 +150,7 @@ const SignUpScreen = () => {
           />
 
           {/* Login Button */}
-          <TouchableOpacity className="w-full px-4 py-2 rounded-xl bg-primary my-3 flex items-center justify-center">
+          <TouchableOpacity onPress={handleSignUp} className="w-full px-4 py-2 rounded-xl bg-primary my-3 flex items-center justify-center">
             <Text className="py-2 text-white text-xl font-semibold">
               Sign Up
             </Text>

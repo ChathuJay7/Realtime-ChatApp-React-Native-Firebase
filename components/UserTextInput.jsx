@@ -2,16 +2,24 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-nativ
 import React, { useLayoutEffect, useState } from "react";
 import { Entypo, MaterialIcons } from "@expo/vector-icons";
 
-const UserTextInput = ({ placeholder, isPass, setStateValue }) => {
+const UserTextInput = ({ placeholder, isPass, setStateValue, setGetEmailValidatedStatus }) => {
 
   const [value, setValue] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(true);
   const [icon, setIcon] = useState(null);
+  const [isEmailValid, setIsEmailValid] = useState(false);
 
   const handleTextChange = (text) => {
     setValue(text)
     setStateValue(value)
+
+    if(placeholder === "Email") {
+      const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+      const status = emailRegex.test(value)
+      setIsEmailValid(status)
+      setGetEmailValidatedStatus(status)
+    }
   }
 
   useLayoutEffect(() => {
@@ -27,7 +35,7 @@ const UserTextInput = ({ placeholder, isPass, setStateValue }) => {
 
   return (
     <View
-      className={`border rounded-2xl px-4 py-6 flex-row items-center justify-between space-x-4 my-2 border-gray-200`}
+      className={`border rounded-2xl px-4 py-6 flex-row items-center justify-between space-x-4 my-2 ${!isEmailValid && placeholder == "Email" && value.length > 0 ? "border-red-500" : "border-gray-200"}`}
     >
       <MaterialIcons name={icon} size={24} color={"#6c6d83"} />
       <TextInput
