@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -10,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import {
   Entypo,
   FontAwesome,
@@ -19,6 +20,17 @@ import {
   MaterialIcons,
 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import {
+  addDoc,
+  collection,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp,
+} from "firebase/firestore";
+import { useSelector } from "react-redux";
+import { firestoreDB } from "../config/firebase.config";
 
 const ChatScreen = ({ route }) => {
   const { room } = route.params;
@@ -26,16 +38,53 @@ const ChatScreen = ({ route }) => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState(null);
   const textInputRef = useRef(null);
 
   const navigation = useNavigation();
+  const user = useSelector((state) => state.user.user);
 
   const handleKeyboardOpen = () => {
-    if(textInputRef.current) {
-        textInputRef.current.focus();
+    if (textInputRef.current) {
+      textInputRef.current.focus();
     }
-  }
+  };
 
+  const sendMessage = async () => {
+    const timeStamp = serverTimestamp();
+    const id = `${Date.now()}`;
+
+    const _doc = {
+      _id: id,
+      roomId: room.__id,
+      timeStamp: timeStamp,
+      message: message,
+      user: user,
+    };
+    setMessage("");
+
+    await addDoc(
+      collection(doc(firestoreDB, "chats", room.__id), "messages"),
+      _doc
+    )
+      .then(() => {})
+      .catch((err) => alert(err));
+  };
+
+  useLayoutEffect(() => {
+    const msgQuery = query(
+      collection(firestoreDB, "chats", room?.__id, "messages"),
+      orderBy("timeStamp", "asc")
+    );
+
+    const unsubscribe = onSnapshot(msgQuery, (querySnap) => {
+      const upMsg = querySnap.docs.map((doc) => doc.data());
+      setMessages(upMsg);
+      setIsLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
 
   return (
     <View style={styles.AndroidSafeArea} className="flex-1">
@@ -92,7 +141,78 @@ const ChatScreen = ({ route }) => {
                   <ActivityIndicator size={"large"} color={"#43C651"} />
                 </>
               ) : (
-                <>{/* Message */}</>
+                <>
+                  {/* Message */}
+                  {messages?.map((msg, i) =>
+                    msg.user.providerData.email === user.providerData.email ? (
+                      <>
+                        <View className="m-1" key={i}>
+                          <View
+                            style={{ alignSelf: "flex-end" }}
+                            className="px-4 py-2 rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl bg-primary w-auto relative"
+                          >
+                            <Text className="text-base font-semibold text-white">
+                              {msg.message}
+                            </Text>
+                          </View>
+                          <View style={{ alignSelf: "flex-end" }}>
+                            {msg?.timeStamp?.seconds && (
+                              <Text className="text-[12px] text-black font-semibold">
+                                {new Date(
+                                  parseInt(msg?.timeStamp?.seconds) * 1000
+                                ).toLocaleTimeString("en-US", {
+                                  hour: "numeric",
+                                  minute: "numeric",
+                                  hour12: true,
+                                })}
+                              </Text>
+                            )}
+                          </View>
+                        </View>
+                      </>
+                    ) : (
+                      <>
+                        <View
+                          key={i}
+                          style={{ alignSelf: "flex-start" }}
+                          className="flex items-center justify-start space-x-2"
+                        >
+                          <View className="flex-row items-center justify-center space-x-2">
+                            {/* Image */}
+                            <Image
+                              className="h-12 w-12 rounded-full"
+                              resizeMode="cover"
+                              source={{ uri: msg?.user?.profilePic }}
+                            />
+                            {/* Text */}
+                            <View className="m-1">
+                              <View
+                                className="px-4 py-2 rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl bg-gray-200 w-auto relative"
+                              >
+                                <Text className="text-base font-semibold text-black">
+                                  {msg.message}
+                                </Text>
+                              </View>
+                              <View style={{ alignSelf: "flex-start" }}>
+                                {msg?.timeStamp?.seconds && (
+                                  <Text className="text-[12px] text-black font-semibold">
+                                    {new Date(
+                                      parseInt(msg?.timeStamp?.seconds) * 1000
+                                    ).toLocaleTimeString("en-US", {
+                                      hour: "numeric",
+                                      minute: "numeric",
+                                      hour12: true,
+                                    })}
+                                  </Text>
+                                )}
+                              </View>
+                            </View>
+                          </View>
+                        </View>
+                      </>
+                    )
+                  )}
+                </>
               )}
             </ScrollView>
 
@@ -112,9 +232,9 @@ const ChatScreen = ({ route }) => {
                   <Entypo name="mic" size={24} color="#43C651" />
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity className="pl-4">
-                  <FontAwesome name="send" size={24} color="#555" />
-                </TouchableOpacity>
+              <TouchableOpacity className="pl-4" onPress={sendMessage}>
+                <FontAwesome name="send" size={24} color="#555" />
+              </TouchableOpacity>
             </View>
           </>
         </KeyboardAvoidingView>
