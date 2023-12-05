@@ -8,23 +8,40 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Logo } from "../assets";
 import { Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator } from "react-native";
 import { MessageCard } from "../components";
 import { useNavigation } from "@react-navigation/native";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { firestoreDB } from "../config/firebase.config";
 
 const HomeScreen = () => {
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [chats, setChats] = useState(null);
 
   const user = useSelector((state) => state.user.user);
   const navigation = useNavigation();
   console.log("Logged user : ", user);
 
-  
+  useLayoutEffect(() => {
+    const chatQuery = query(collection(firestoreDB, "chats"), orderBy("__id", "desc"));
+
+    const unsubscribe = onSnapshot(chatQuery, (querySnapShot) => {
+      const chatRooms = querySnapShot.docs.map((doc) => doc.data());
+      setChats(chatRooms);
+      setIsLoading(false);
+    })
+    
+    console.log("Chats : ",chats)
+    // Return unsubscribe function to stop listening to the updates
+    return unsubscribe;
+
+    
+  }, [])
 
   return (
     <View style={styles.AndroidSafeArea} className="flex-1">
@@ -61,13 +78,15 @@ const HomeScreen = () => {
               </>
             ) : (
               <>
-                <MessageCard />
-                <MessageCard />
-                <MessageCard />
-                <MessageCard />
-                <MessageCard />
-                <MessageCard />
-                <MessageCard />
+                {chats && chats.length > 0 ? (
+                <>
+                {chats?.map(room => (
+                  <MessageCard key={room.__id} room={room}/>
+                ))}
+                </>
+                ) : (
+                <>
+                </>)}
               </>
             )}
           </View>

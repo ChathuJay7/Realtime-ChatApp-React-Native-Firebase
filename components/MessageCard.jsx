@@ -2,7 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import { FontAwesome } from '@expo/vector-icons'
 
-const MessageCard = () => {
+const MessageCard = ({room}) => {
   return (
     <TouchableOpacity className="w-full flex-row items-center justify-start py-2">
         {/* Image */}
@@ -11,7 +11,7 @@ const MessageCard = () => {
         </View>
         {/* Content */}
         <View className="flex-1 flex items-start justify-center ml-4">
-            <Text className="text-[#333] text-base font-semibold capitalize">Message Title</Text>
+            <Text className="text-[#333] text-base font-semibold capitalize">{room.chatName}</Text>
             <Text className="text-primaryText text-sm">Lorem ipsum dolor sit amet tetur adipis adip isicing icing elit....</Text>
         </View>
         {/* Time Text */}
