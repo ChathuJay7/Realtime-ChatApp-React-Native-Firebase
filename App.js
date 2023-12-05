@@ -2,7 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { AddToChatScreen, HomeScreen, LoginScreen, SignUpScreen, SplashScreen } from "./screens";
+import { AddToChatScreen, ChatScreen, HomeScreen, LoginScreen, SignUpScreen, SplashScreen } from "./screens";
 import { Provider } from "react-redux";
 import Store from "./context/store";
 
@@ -18,6 +18,7 @@ export default function App() {
           <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
           <Stack.Screen name="HomeScreen" component={HomeScreen} />
           <Stack.Screen name="AddToChatScreen" component={AddToChatScreen} />
+          <Stack.Screen name="ChatScreen" component={ChatScreen} />
         </Stack.Navigator>
       </Provider>
     </NavigationContainer>

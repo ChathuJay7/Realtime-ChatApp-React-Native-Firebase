@@ -1,10 +1,14 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import { FontAwesome } from '@expo/vector-icons'
+import { useNavigation } from '@react-navigation/native'
 
 const MessageCard = ({room}) => {
+
+  const navigation = useNavigation();
+
   return (
-    <TouchableOpacity className="w-full flex-row items-center justify-start py-2">
+    <TouchableOpacity className="w-full flex-row items-center justify-start py-2" onPress={() => navigation.navigate("ChatScreen", {room: room})}>
         {/* Image */}
         <View className="h-16 w-16 rounded-full flex items-center border-2 border-primary p-1 justify-center">
             <FontAwesome name="users" color="#555"/>

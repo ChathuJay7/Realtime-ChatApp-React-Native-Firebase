@@ -81,7 +81,7 @@ const HomeScreen = () => {
                 {chats && chats.length > 0 ? (
                 <>
                 {chats?.map(room => (
-                  <MessageCard key={room.__id} room={room}/>
+                  <MessageCard key={room.__id} room={room} />
                 ))}
                 </>
                 ) : (
