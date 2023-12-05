@@ -48,7 +48,7 @@ const HomeScreen = () => {
       <SafeAreaView>
         <View className="w-full flex-row items-center justify-between px-4 py-2">
           <Image source={Logo} className="w-12 h-12" resizeMode="contain" />
-          <TouchableOpacity className="w-12 h-12 rounded-full border border-primary flex items-center justify-center">
+          <TouchableOpacity onPress={() => navigation.navigate("ProfileScreen")} className="w-12 h-12 rounded-full border border-primary flex items-center justify-center">
             <Image
               source={{ uri: user?.profilePic }}
               className="w-full h-full"

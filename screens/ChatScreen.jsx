@@ -36,7 +36,7 @@ const ChatScreen = ({ route }) => {
   const { room } = route.params;
   console.log(room);
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState(null);
   const textInputRef = useRef(null);
